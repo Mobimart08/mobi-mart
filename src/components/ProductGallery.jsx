@@ -63,7 +63,7 @@ export default function ProductGallery({
       </div>
 
       <div
-        className="relative w-fit max-w-[500px] overflow-hidden rounded-2xl bg-white p-[10px] shadow-sm transition hover:shadow-md"
+        className="relative w-fit max-w-[500px] overflow-hidden rounded-2xl bg-cream p-[10px] shadow-sm transition hover:shadow-md"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
