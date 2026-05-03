@@ -65,7 +65,7 @@ const ProductCard = ({ product }) => {
                 setImageFailed(true);
                 setImageLoaded(false);
               }}
-              className={`h-full w-full rounded-lg object-contain object-center p-3 transition-transform duration-300 group-hover:scale-105 ${
+              className={`h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
             />
