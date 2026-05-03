@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getCloudinaryImageUrl } from "../utils/cloudinaryImage";
 
@@ -7,44 +8,75 @@ export default function ProductGallery({
   onSelectImage,
   productName,
 }) {
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  const minSwipeDistance = 50;
+
+  const currentIndex = images.indexOf(selectedImage);
+
+  const goToNextImage = () => {
+    const nextIndex = (currentIndex + 1) % images.length;
+    onSelectImage(images[nextIndex]);
+  };
+
+  const goToPrevImage = () => {
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    onSelectImage(images[prevIndex]);
+  };
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+
+    if (distance > minSwipeDistance) {
+      goToNextImage();
+    } else if (distance < -minSwipeDistance) {
+      goToPrevImage();
+    }
+  };
+
   return (
-    <div className="grid gap-3 sm:grid-cols-[88px_1fr]">
-      <div className="order-2 flex gap-2 overflow-x-auto pb-1 sm:order-1 sm:flex-col sm:overflow-visible sm:pb-0">
-        {images.map((image) => (
-          <button
-            key={image}
-            type="button"
-            onClick={() => onSelectImage(image)}
-            className={`shrink-0 overflow-hidden rounded-xl border p-1 transition ${
-              selectedImage === image
-                ? "border-primary bg-primary/10"
-                : "border-primary/20 bg-white"
+    <div className="flex flex-col-reverse md:flex-row gap-3">
+      <div className="flex gap-3 overflow-x-auto md:flex-col shrink-0">
+        {images.map((img, i) => (
+          <img
+            key={i}
+            src={getCloudinaryImageUrl(img, "thumbnail")}
+            alt={`${productName} thumbnail ${i + 1}`}
+            onClick={() => onSelectImage(img)}
+            className={`h-16 w-16 shrink-0 cursor-pointer rounded-lg border object-cover transition ${
+              selectedImage === img ? "border-primary" : "border-gray-200"
             }`}
-          >
-            <img
-              src={getCloudinaryImageUrl(image, "thumbnail")}
-              alt={productName}
-              loading="lazy"
-              decoding="async"
-              className="h-16 w-16 rounded-lg object-cover"
-            />
-          </button>
+          />
         ))}
       </div>
 
-      <div className="order-1 overflow-hidden rounded-2xl border border-primary/20 bg-cream p-4 shadow-md sm:order-2 sm:p-6">
+      <div
+        className="flex w-full items-center justify-center rounded-2xl bg-white overflow-hidden"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         <AnimatePresence mode="wait">
           <motion.img
             key={selectedImage}
             src={getCloudinaryImageUrl(selectedImage, "hero")}
             alt={productName}
-            loading="eager"
-            decoding="async"
             initial={{ opacity: 0.4, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0.2, scale: 0.96 }}
             transition={{ duration: 0.25 }}
-            className="mx-auto h-[260px] w-full max-w-[360px] object-contain sm:h-[320px] lg:h-[360px]"
+            className="max-h-[420px] w-full object-contain object-center transition-transform duration-300 hover:scale-105"
           />
         </AnimatePresence>
       </div>
