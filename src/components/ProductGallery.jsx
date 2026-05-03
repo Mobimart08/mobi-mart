@@ -47,7 +47,7 @@ export default function ProductGallery({
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 max-w-[520px]">
+    <div className="flex flex-col md:flex-row items-start gap-4">
       <div className="flex md:flex-col gap-3 overflow-x-auto shrink-0">
         {images.map((img, i) => (
           <img
@@ -63,7 +63,7 @@ export default function ProductGallery({
       </div>
 
       <div
-        className="relative flex flex-1 items-center justify-center rounded-2xl bg-white p-4 overflow-hidden"
+        className="relative w-fit max-w-[500px] overflow-hidden rounded-2xl bg-white p-[10px] shadow-sm transition hover:shadow-md"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -77,11 +77,11 @@ export default function ProductGallery({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0.2, scale: 0.96 }}
             transition={{ duration: 0.25 }}
-            className="max-h-[420px] w-full object-contain object-center transition duration-300 hover:scale-105"
+            className="h-auto w-full object-contain transition duration-300 hover:scale-105"
           />
         </AnimatePresence>
 
-        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2 z-10">
+        <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-2">
           {images.map((_, i) => (
             <div
               key={i}
