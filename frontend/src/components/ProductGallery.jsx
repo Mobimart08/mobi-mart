@@ -32,20 +32,24 @@ export default function ProductGallery({
         ))}
       </div>
 
-      <div className="order-1 overflow-hidden rounded-2xl border border-primary/20 bg-cream p-4 shadow-md sm:order-2 sm:p-6">
+      <div className="order-1 overflow-hidden rounded-2xl border border-primary/20 bg-cream p-3 shadow-md sm:order-2 sm:p-5">
         <AnimatePresence mode="wait">
-          <motion.img
+          <motion.div
             key={selectedImage}
-            src={getCloudinaryImageUrl(selectedImage, "hero")}
-            alt={productName}
-            loading="eager"
-            decoding="async"
             initial={{ opacity: 0.4, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0.2, scale: 0.96 }}
             transition={{ duration: 0.25 }}
-            className="mx-auto h-[260px] w-full max-w-[360px] object-contain sm:h-[320px] lg:h-[360px]"
-          />
+            className="flex min-h-[320px] items-center justify-center rounded-[20px] border border-primary/10 bg-white/70 p-4 sm:min-h-[420px] sm:p-6 lg:min-h-[520px]"
+          >
+            <img
+              src={getCloudinaryImageUrl(selectedImage, "hero")}
+              alt={productName}
+              loading="eager"
+              decoding="async"
+              className="h-full max-h-[500px] w-full object-contain"
+            />
+          </motion.div>
         </AnimatePresence>
       </div>
     </div>

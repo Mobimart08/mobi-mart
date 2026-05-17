@@ -49,7 +49,7 @@ const ProductCard = ({ product }) => {
         onClick={() => navigate(`/product/${productId}`)}
         className="relative block overflow-hidden rounded-xl bg-gray-100 text-left"
       >
-        <div className="relative flex h-[140px] w-full items-center justify-center overflow-hidden rounded-xl bg-gray-100 min-[380px]:h-[160px] sm:h-[180px]">
+        <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-gradient-to-br from-slate-50 via-white to-slate-100">
           {!imageLoaded && !imageFailed ? (
             <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100" />
           ) : null}
@@ -65,7 +65,7 @@ const ProductCard = ({ product }) => {
                 setImageFailed(true);
                 setImageLoaded(false);
               }}
-              className={`h-full w-full rounded-lg object-cover object-center transition-transform duration-300 group-hover:scale-105 ${
+              className={`h-full w-full rounded-lg object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03] ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
             />
