@@ -1,7 +1,12 @@
 import { AnimatePresence } from "framer-motion";
 import ProductRow from "./ProductRow";
 
-export default function ProductTable({ products, onDelete, deletingId = "" }) {
+export default function ProductTable({
+  products,
+  onDelete,
+  deletingId = "",
+  isActionLocked = false,
+}) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
       <table className="min-w-[860px] w-full text-left text-sm">
@@ -26,6 +31,7 @@ export default function ProductTable({ products, onDelete, deletingId = "" }) {
                 index={index}
                 onDelete={onDelete}
                 isDeleting={deletingId === (product._id || product.id)}
+                isActionLocked={isActionLocked}
               />
             ))}
           </AnimatePresence>

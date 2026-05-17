@@ -31,6 +31,7 @@ export default function ProductImageManager({
   onDropZoneDrop,
   onImageDragStart,
   onImageDragOver,
+  onImageDrop,
   onImageDragEnd,
   onRemoveImage,
   onEditImage,
@@ -39,6 +40,8 @@ export default function ProductImageManager({
   isSubmitting = false,
   uploadedUrlsCount = 0,
 }) {
+  const isInteractionDisabled = isOptimizingImages || isSubmitting;
+
   return (
     <>
       <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
@@ -61,15 +64,19 @@ export default function ProductImageManager({
           multiple
           className="hidden"
           onChange={onFilesSelected}
-          disabled={isOptimizingImages || isSubmitting}
+          disabled={isInteractionDisabled}
         />
 
         <div
           role="button"
           tabIndex={0}
-          onClick={onTriggerFilePicker}
+          onClick={() => {
+            if (!isInteractionDisabled) {
+              onTriggerFilePicker();
+            }
+          }}
           onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
+            if (!isInteractionDisabled && (event.key === "Enter" || event.key === " ")) {
               event.preventDefault();
               onTriggerFilePicker();
             }
@@ -77,11 +84,12 @@ export default function ProductImageManager({
           onDragOver={onDropZoneDragOver}
           onDragLeave={onDropZoneDragLeave}
           onDrop={onDropZoneDrop}
-          className={`mb-4 flex min-h-40 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-white px-4 text-center transition ${
+          aria-disabled={isInteractionDisabled}
+          className={`mb-4 flex min-h-40 w-full flex-col items-center justify-center rounded-2xl border border-dashed bg-white px-4 text-center transition ${
             isDropZoneActive
               ? "border-emerald-500 bg-emerald-50 text-emerald-700"
               : "border-slate-300 text-slate-500 hover:border-emerald-400 hover:text-emerald-600"
-          }`}
+          } ${isInteractionDisabled ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
         >
           {isOptimizingImages ? (
             <>
@@ -120,9 +128,10 @@ export default function ProductImageManager({
                 <motion.div
                   key={image.id}
                   layout
-                  draggable={!isSubmitting && !isOptimizingImages}
+                  draggable={!isInteractionDisabled}
                   onDragStart={() => onImageDragStart(image.id)}
-                  onDragOver={(event) => onImageDragOver(event, image.id, isSubmitting || isOptimizingImages)}
+                  onDragOver={(event) => onImageDragOver(event, image.id, isInteractionDisabled)}
+                  onDrop={(event) => onImageDrop(event, image.id, isInteractionDisabled)}
                   onDragEnd={onImageDragEnd}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -131,7 +140,7 @@ export default function ProductImageManager({
                     draggedImageId === image.id
                       ? "border-emerald-400 ring-2 ring-emerald-100"
                       : "border-slate-200"
-                  }`}
+                  } ${isInteractionDisabled ? "cursor-not-allowed" : "cursor-grab active:cursor-grabbing"}`}
                 >
                   <img
                     src={image.previewUrl}
@@ -166,7 +175,8 @@ export default function ProductImageManager({
                     <button
                       type="button"
                       onClick={() => onEditImage(image.id)}
-                      className="rounded-full bg-white/95 p-2 text-slate-700 shadow-sm transition hover:bg-white hover:text-primary"
+                      disabled={isInteractionDisabled}
+                      className="rounded-full bg-white/95 p-2 text-slate-700 shadow-sm transition hover:bg-white hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
                       aria-label={`Edit ${image.originalName}`}
                       title="Edit image"
                     >
@@ -175,7 +185,8 @@ export default function ProductImageManager({
                     <button
                       type="button"
                       onClick={() => onRemoveImage(image.id)}
-                      className="rounded-full bg-black/65 p-2 text-white transition hover:bg-rose-600"
+                      disabled={isInteractionDisabled}
+                      className="rounded-full bg-black/65 p-2 text-white transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-60"
                       aria-label={`Remove ${image.originalName}`}
                       title="Remove image"
                     >
@@ -216,7 +227,7 @@ export default function ProductImageManager({
                 key={`slot-${index}`}
                 type="button"
                 onClick={onTriggerFilePicker}
-                disabled={isOptimizingImages || isSubmitting}
+                disabled={isInteractionDisabled}
                 className="flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white text-xl text-slate-400 transition hover:border-emerald-400 hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="Add another product image"
               >

@@ -89,6 +89,11 @@ export default function AddProduct() {
       return;
     }
 
+    if (previewImages.length === 0) {
+      setError("Add at least one product image before saving.");
+      return;
+    }
+
     for (let i = 0; i < variants.length; i += 1) {
       const variant = variants[i];
       if (!variant.storage || !variant.color.trim() || !variant.price) {

@@ -170,6 +170,16 @@ async function deleteCloudinaryImages(images = []) {
   );
 }
 
+function collectProductImageUrls(product) {
+  const imageUrls = Array.isArray(product?.images) ? [...product.images] : [];
+
+  if (typeof product?.image === "string" && product.image.trim()) {
+    imageUrls.push(product.image.trim());
+  }
+
+  return [...new Set(imageUrls.filter(Boolean))];
+}
+
 export const getProducts = async (_req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -251,7 +261,7 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    await deleteCloudinaryImages(product.images);
+    await deleteCloudinaryImages(collectProductImageUrls(product));
     await product.deleteOne();
 
     res.json({ message: "Product deleted successfully" });

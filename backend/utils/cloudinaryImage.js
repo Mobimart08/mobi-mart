@@ -65,7 +65,10 @@ export function extractCloudinaryPublicId(url) {
     const assetSegments =
       versionIndex >= 0
         ? afterUploadSegments.slice(versionIndex + 1)
-        : afterUploadSegments.filter((segment) => !segment.includes(","));
+        : afterUploadSegments.filter((segment) => {
+            const tokens = segment.split(",");
+            return !tokens.every((token) => /^[a-z]{1,3}_.+/.test(token));
+          });
 
     if (assetSegments.length === 0) {
       return null;

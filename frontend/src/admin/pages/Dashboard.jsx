@@ -1,53 +1,25 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { FiBox, FiPlus, FiSmartphone, FiStar } from "react-icons/fi";
-import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import ConfirmationModal from "../components/ConfirmationModal";
 import ProductTable from "../components/ProductTable";
 import Sidebar from "../components/Sidebar";
 import StatCard from "../components/StatCard";
 import Topbar from "../components/Topbar";
 import StatusMessage from "../../components/ui/StatusMessage";
 import { useProducts } from "../context/useProducts";
+import { useProductDeleteFlow } from "../hooks/useProductDeleteFlow";
 
 export default function Dashboard() {
   const { products, deleteProduct } = useProducts();
-  const [error, setError] = useState("");
-  const [deletingId, setDeletingId] = useState("");
-  const [productPendingDelete, setProductPendingDelete] = useState(null);
+  const { deleteError, deletingId, isDeleteLocked, openDeleteModal, confirmationModal } =
+    useProductDeleteFlow({ deleteProduct });
   const stats = useMemo(() => {
     const total = products.length;
     const newPhones = products.filter((item) => item.type === "New").length;
     const usedPhones = products.filter((item) => item.type === "Used").length;
     return { total, newPhones, usedPhones };
   }, [products]);
-
-  const handleDeletePrompt = (product) => {
-    setProductPendingDelete(product);
-    setError("");
-  };
-
-  const handleDelete = async () => {
-    if (!productPendingDelete) {
-      return;
-    }
-
-    try {
-      const productId = productPendingDelete._id || productPendingDelete.id;
-      setDeletingId(productId);
-      setError("");
-      await deleteProduct(productId);
-      toast.success(`${productPendingDelete.name} deleted successfully.`);
-      setProductPendingDelete(null);
-    } catch (deleteError) {
-      const message = deleteError.response?.data?.message || "Failed to delete product.";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setDeletingId("");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-cream">
@@ -94,16 +66,17 @@ export default function Dashboard() {
                 View All
               </Link>
             </div>
-            <StatusMessage message={error} tone="error" className="mb-3" />
+            <StatusMessage message={deleteError} tone="error" className="mb-3" />
             <ProductTable
               products={products.slice(0, 6)}
               onDelete={(id) => {
                 const product = products.find((item) => (item._id || item.id) === id);
                 if (product) {
-                  handleDeletePrompt(product);
+                  openDeleteModal(product);
                 }
               }}
               deletingId={deletingId}
+              isActionLocked={isDeleteLocked}
             />
           </section>
 
@@ -149,24 +122,7 @@ export default function Dashboard() {
           </section>
         </motion.div>
       </main>
-      <ConfirmationModal
-        isOpen={Boolean(productPendingDelete)}
-        title="Delete Product"
-        description={
-          productPendingDelete
-            ? `Delete "${productPendingDelete.name}" from inventory? This action removes it from the database and storefront listing immediately.`
-            : ""
-        }
-        confirmLabel="Delete Product"
-        confirmTone="danger"
-        onConfirm={handleDelete}
-        onClose={() => {
-          if (!deletingId) {
-            setProductPendingDelete(null);
-          }
-        }}
-        isProcessing={Boolean(deletingId)}
-      />
+      {confirmationModal}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cropper } from "react-cropper";
 import "cropperjs/dist/cropper.css";
-import { FiRefreshCcw } from "react-icons/fi";
+import { FiRefreshCcw, FiRotateCcw, FiRotateCw } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import ModalShell from "../../components/ui/ModalShell";
 import Spinner from "../../components/ui/Spinner";
@@ -126,6 +126,19 @@ function ImageEditorBody({ image, onClose, onSave }) {
     schedulePreviewUpdate();
   };
 
+  const rotateBy = (degrees) => {
+    const cropper = cropperRef.current?.cropper;
+
+    if (!cropper) {
+      return;
+    }
+
+    const nextRotation = Math.max(-180, Math.min(180, rotation + degrees));
+    cropper.rotateTo(nextRotation);
+    setRotation(nextRotation);
+    schedulePreviewUpdate();
+  };
+
   const handleSave = async () => {
     const cropper = cropperRef.current?.cropper;
 
@@ -215,7 +228,7 @@ function ImageEditorBody({ image, onClose, onSave }) {
               style={{ height: "100%", width: "100%" }}
               viewMode={1}
               dragMode="move"
-              aspectRatio={originalAspect}
+              aspectRatio={Number.NaN}
               background={false}
               responsive
               autoCrop
@@ -277,21 +290,26 @@ function ImageEditorBody({ image, onClose, onSave }) {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <label className="block">
+            <div>
               <span className="mb-2 block text-sm font-medium text-slate-700">Crop Mode</span>
-              <select
-                value={aspectMode}
-                onChange={(event) => setAspectMode(event.target.value)}
-                className="ds-select"
-                disabled={isSaving}
-              >
+              <div className="flex flex-wrap gap-2">
                 {aspectOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setAspectMode(option.value)}
+                    disabled={isSaving}
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                      aspectMode === option.value
+                        ? "bg-primary text-white shadow-sm"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    } disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
                     {option.label}
-                  </option>
+                  </button>
                 ))}
-              </select>
-            </label>
+              </div>
+            </div>
 
             <label className="mt-4 block">
               <div className="mb-2 flex items-center justify-between text-sm font-medium text-slate-700">
@@ -324,6 +342,26 @@ function ImageEditorBody({ image, onClose, onSave }) {
               <div className="mb-2 flex items-center justify-between text-sm font-medium text-slate-700">
                 <span>Rotate</span>
                 <span>{rotation}&deg;</span>
+              </div>
+              <div className="mb-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => rotateBy(-90)}
+                  disabled={isSaving}
+                  className="ds-btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                >
+                  <FiRotateCcw />
+                  Rotate Left
+                </button>
+                <button
+                  type="button"
+                  onClick={() => rotateBy(90)}
+                  disabled={isSaving}
+                  className="ds-btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                >
+                  <FiRotateCw />
+                  Rotate Right
+                </button>
               </div>
               <input
                 type="range"

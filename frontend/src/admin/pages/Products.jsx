@@ -1,9 +1,7 @@
 import { useMemo, useState } from "react";
 import { FiBox, FiPlus, FiSmartphone, FiStar } from "react-icons/fi";
-import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import ConfirmationModal from "../components/ConfirmationModal";
 import StatCard from "../components/StatCard";
 import Topbar from "../components/Topbar";
 import Pagination from "../components/Pagination";
@@ -12,16 +10,16 @@ import ProductTable from "../components/ProductTable";
 import Spinner from "../../components/ui/Spinner";
 import StatusMessage from "../../components/ui/StatusMessage";
 import { useProducts } from "../context/useProducts";
+import { useProductDeleteFlow } from "../hooks/useProductDeleteFlow";
 
 export default function Products() {
   const { products, deleteProduct, isLoading } = useProducts();
   const [searchTerm, setSearchTerm] = useState("");
   const [condition, setCondition] = useState("All");
   const [page, setPage] = useState(1);
-  const [error, setError] = useState("");
-  const [deletingId, setDeletingId] = useState("");
-  const [productPendingDelete, setProductPendingDelete] = useState(null);
   const pageSize = 5;
+  const { deleteError, deletingId, isDeleteLocked, openDeleteModal, confirmationModal } =
+    useProductDeleteFlow({ deleteProduct });
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -46,32 +44,6 @@ export default function Products() {
     const usedPhones = products.filter((item) => item.type === "Used").length;
     return { total, newPhones, usedPhones };
   }, [products]);
-
-  const handleDeletePrompt = (product) => {
-    setProductPendingDelete(product);
-    setError("");
-  };
-
-  const handleDelete = async () => {
-    if (!productPendingDelete) {
-      return;
-    }
-
-    try {
-      const productId = productPendingDelete._id || productPendingDelete.id;
-      setDeletingId(productId);
-      setError("");
-      await deleteProduct(productId);
-      toast.success(`${productPendingDelete.name} deleted successfully.`);
-      setProductPendingDelete(null);
-    } catch (deleteError) {
-      const message = deleteError.response?.data?.message || "Failed to delete product.";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setDeletingId("");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-cream">
@@ -130,7 +102,7 @@ export default function Products() {
             />
 
             <div className="mt-4">
-              <StatusMessage message={error} tone="error" className="mb-3" />
+              <StatusMessage message={deleteError} tone="error" className="mb-3" />
               {isLoading ? (
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-10">
                   <Spinner label="Loading products..." />
@@ -148,10 +120,11 @@ export default function Products() {
                   onDelete={(id) => {
                     const product = products.find((item) => (item._id || item.id) === id);
                     if (product) {
-                      handleDeletePrompt(product);
+                      openDeleteModal(product);
                     }
                   }}
                   deletingId={deletingId}
+                  isActionLocked={isDeleteLocked}
                 />
               )}
             </div>
@@ -177,24 +150,7 @@ export default function Products() {
           </div>
         </section>
       </main>
-      <ConfirmationModal
-        isOpen={Boolean(productPendingDelete)}
-        title="Delete Product"
-        description={
-          productPendingDelete
-            ? `Delete "${productPendingDelete.name}" from inventory? This action removes it from the database and storefront listing immediately.`
-            : ""
-        }
-        confirmLabel="Delete Product"
-        confirmTone="danger"
-        onConfirm={handleDelete}
-        onClose={() => {
-          if (!deletingId) {
-            setProductPendingDelete(null);
-          }
-        }}
-        isProcessing={Boolean(deletingId)}
-      />
+      {confirmationModal}
     </div>
   );
 }

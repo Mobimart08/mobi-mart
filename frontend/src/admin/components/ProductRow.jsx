@@ -19,7 +19,13 @@ function formatDate(date) {
   });
 }
 
-export default function ProductRow({ product, index, onDelete, isDeleting = false }) {
+export default function ProductRow({
+  product,
+  index,
+  onDelete,
+  isDeleting = false,
+  isActionLocked = false,
+}) {
   const navigate = useNavigate();
   const allowDelete = typeof onDelete === "function";
   const productId = product._id || product.id;
@@ -69,10 +75,10 @@ export default function ProductRow({ product, index, onDelete, isDeleting = fals
           <motion.button
             whileHover={{ y: -1 }}
             type="button"
-            disabled={isDeleting}
+            disabled={isActionLocked}
             onClick={() => navigate(`/admin/edit-product/${productId}`)}
             className={`rounded-lg p-2 text-white shadow-sm ${
-              isDeleting
+              isActionLocked
                 ? "cursor-not-allowed bg-slate-300"
                 : "bg-primary hover:bg-[#0d2345]"
             }`}
@@ -85,15 +91,17 @@ export default function ProductRow({ product, index, onDelete, isDeleting = fals
             type="button"
             onClick={() => allowDelete && onDelete(productId)}
             className={`rounded-lg p-2 shadow-sm ${
-              allowDelete && !isDeleting
+              allowDelete && !isActionLocked
                 ? "bg-red-500 text-white hover:bg-red-600"
                 : "cursor-not-allowed bg-gray-100 text-gray-400"
             }`}
-            disabled={!allowDelete || isDeleting}
+            disabled={!allowDelete || isActionLocked}
             aria-label={`Delete ${product.name}`}
+            title={isDeleting ? "Deleting product..." : `Delete ${product.name}`}
           >
             <FiTrash2 />
           </motion.button>
+          {isDeleting ? <span className="text-xs font-medium text-rose-600">Deleting...</span> : null}
         </div>
       </td>
     </motion.tr>

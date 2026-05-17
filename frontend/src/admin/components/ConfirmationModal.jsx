@@ -51,7 +51,7 @@ export default function ConfirmationModal({
         </div>
       )}
     >
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
+      <div className="rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 via-white to-slate-50 px-4 py-4 text-sm text-slate-600">
         {description}
       </div>
     </ModalShell>

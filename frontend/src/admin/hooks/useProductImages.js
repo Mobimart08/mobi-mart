@@ -178,6 +178,22 @@ export function useProductImages({ initialImages = [], setErrorMessage, setSucce
     });
   }, [draggedImageId]);
 
+  const onImageDrop = useCallback((event, targetImageId, isDisabled) => {
+    event.preventDefault();
+
+    if (!draggedImageId || draggedImageId === targetImageId || isDisabled) {
+      setDraggedImageId(null);
+      return;
+    }
+
+    setPreviewImages((prev) => {
+      const fromIndex = prev.findIndex((image) => image.id === draggedImageId);
+      const toIndex = prev.findIndex((image) => image.id === targetImageId);
+      return moveItem(prev, fromIndex, toIndex);
+    });
+    setDraggedImageId(null);
+  }, [draggedImageId]);
+
   const onImageDragEnd = useCallback(() => {
     setDraggedImageId(null);
   }, []);
@@ -205,6 +221,10 @@ export function useProductImages({ initialImages = [], setErrorMessage, setSucce
               id: image.id,
               remoteUrl: image.remoteUrl,
               source: image.remoteUrl ? "edited-remote" : "edited-local",
+              uploadStatus: "ready",
+              uploadProgress: 0,
+              uploadAttempts: 0,
+              uploadError: "",
             }),
           };
         }),
@@ -235,10 +255,15 @@ export function useProductImages({ initialImages = [], setErrorMessage, setSucce
       onDropZoneDrop,
       onImageDragStart,
       onImageDragOver,
+      onImageDrop,
       onImageDragEnd,
       onRemoveImage: removeImage,
       onEditImage: setEditingImageId,
-      onTriggerFilePicker: () => fileInputRef.current?.click(),
+      onTriggerFilePicker: () => {
+        if (!isOptimizingImages) {
+          fileInputRef.current?.click();
+        }
+      },
       formatFileSize,
     },
     imageEditorProps: {
