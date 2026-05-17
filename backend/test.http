@@ -1,0 +1,92 @@
+POST http://localhost:5000/api/products
+Content-Type: application/json
+
+{
+  "name": "iPhone 12",
+  "brand": "Apple",
+  "description": "Good condition, no scratches",
+  "type": "Used",
+  "images": ["https://dummyimage.com/iphone.jpg"],
+  "variants": [
+    {
+      "storage": "128GB",
+      "color": "Black",
+      "price": 25000
+    }
+  ]
+}
+
+###
+
+PUT http://localhost:5000/api/products/REPLACE_WITH_PRODUCT_ID
+Content-Type: application/json
+
+{
+  "name": "iPhone 12 Updated",
+  "brand": "Apple",
+  "description": "Updated description",
+  "type": "Used",
+  "images": ["https://dummyimage.com/iphone-updated.jpg"],
+  "variants": [
+    {
+      "storage": "128GB",
+      "color": "Black",
+      "price": 26000
+    }
+  ]
+}
+
+###
+
+DELETE http://localhost:5000/api/products/REPLACE_WITH_PRODUCT_ID
+
+###
+
+GET http://localhost:5000/api/products
+
+###
+
+POST http://localhost:5000/api/products
+Content-Type: application/json
+
+{
+  "brand": "Apple",
+  "type": "Used",
+  "variants": [
+    {
+      "storage": "128GB",
+      "color": "Black",
+      "price": 25000
+    }
+  ]
+}
+
+###
+
+POST http://localhost:5000/api/products
+Content-Type: application/json
+
+{
+  "name": "iPhone 12",
+  "brand": "Apple",
+  "type": "Used",
+  "variants": []
+}
+
+###
+
+POST http://localhost:5000/api/products
+Content-Type: application/json
+
+{
+  "name": "iPhone 12",
+  "brand": "Apple",
+  "type": "Used",
+  "variants": [
+    {
+      "storage": "128GB",
+      "color": "Black",
+      "price": -100
+    }
+  ]
+}
